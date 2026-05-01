@@ -1,0 +1,8 @@
+{
+  "name": "llm-wiki",
+  "description": "Crée et entretient un wiki Obsidian-compatible piloté par LLM (ingest, query, lint, MOC auto, capture continue).",
+  "version": "1.0.0",
+  "author": { "name": "Your Name" },
+  "license": "MIT",
+  "keywords": ["wiki", "obsidian", "knowledge-base", "ingest", "llm", "moc", "bases", "documentation"]
+}

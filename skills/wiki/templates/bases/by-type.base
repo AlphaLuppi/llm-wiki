@@ -1,0 +1,78 @@
+filters:
+  and:
+    - file.inFolder("wiki")
+    - file.ext == "md"
+    - 'type != "moc"'
+    - 'type != "index"'
+    - 'type != "log"'
+    - 'type != "schema"'
+properties:
+  title:
+    displayName: "Titre"
+  type:
+    displayName: "Type"
+  tags:
+    displayName: "Tags"
+  file.mtime:
+    displayName: "Modifié"
+views:
+  - type: table
+    name: "Sources"
+    filters:
+      and:
+        - 'type == "source"'
+    order:
+      - title
+      - tags
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: desc
+  - type: table
+    name: "Entities"
+    filters:
+      and:
+        - 'type == "entity"'
+    order:
+      - title
+      - tags
+      - file.mtime
+    sort:
+      - property: title
+        direction: asc
+  - type: table
+    name: "Concepts"
+    filters:
+      and:
+        - 'type == "concept"'
+    order:
+      - title
+      - tags
+      - file.mtime
+    sort:
+      - property: title
+        direction: asc
+  - type: table
+    name: "Comparisons"
+    filters:
+      and:
+        - 'type == "comparison"'
+    order:
+      - title
+      - tags
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: desc
+  - type: table
+    name: "Syntheses"
+    filters:
+      and:
+        - 'type == "synthesis"'
+    order:
+      - title
+      - tags
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: desc

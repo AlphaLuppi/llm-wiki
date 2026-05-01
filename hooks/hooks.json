@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "schema=$(find \"$PWD\" -maxdepth 3 -name \"_wiki_schema.md\" -type f 2>/dev/null | head -1); if [ -n \"$schema\" ]; then vault=$(dirname \"$schema\"); echo \"Wiki Obsidian détecté à $vault — tape /wiki brief pour explorer le catalogue.\"; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

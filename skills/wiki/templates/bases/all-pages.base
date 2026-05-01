@@ -1,0 +1,28 @@
+filters:
+  and:
+    - file.inFolder("wiki")
+    - file.ext == "md"
+    - 'type != "moc"'
+    - 'type != "index"'
+    - 'type != "log"'
+    - 'type != "schema"'
+properties:
+  title:
+    displayName: "Titre"
+  type:
+    displayName: "Type"
+  tags:
+    displayName: "Tags"
+  file.mtime:
+    displayName: "Modifié"
+views:
+  - type: table
+    name: "Toutes les pages"
+    order:
+      - title
+      - type
+      - tags
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: desc
