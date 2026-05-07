@@ -42,6 +42,35 @@ date: YYYY-MM-DD
 
 `title`, `type`, `tags`, `date` sont obligatoires. Champs optionnels : `description` (utilisé par index.md), `aliases`, `source` (URL ou path d'origine).
 
+### Frontmatter spécifique aux pages `type: source`
+
+Les pages dans `wiki/sources/` portent en plus trois champs qui suivent le cycle de vie d'ingestion du document :
+
+```yaml
+---
+title: Attention Is All You Need
+type: source
+tags: [type/source, techno/transformer, status/reviewed]
+date: 2026-04-30
+source_path: inbox/2026-04-15-attention-is-all-you-need.pdf
+ingested: true
+ingested_date: 2026-04-30
+---
+```
+
+| Champ           | Type    | Sens                                                                                          |
+|-----------------|---------|-----------------------------------------------------------------------------------------------|
+| `source_path`   | string  | Chemin (relatif au vault ou absolu) du document brut. Sert de clé d'identité anti-doublon.    |
+| `ingested`      | boolean | `true` = document lu et distillé dans le wiki ; `false` = stub planifié, pas encore lu.        |
+| `ingested_date` | string  | Date d'ingestion `YYYY-MM-DD`. Absent ou vide tant que `ingested: false`.                      |
+
+Conventions :
+
+- `/wiki ingest <path>` crée la page avec `ingested: true` et renseigne les trois champs.
+- Un utilisateur peut **pré-créer** une page source en `ingested: false` (pile « à lire ») ; `/wiki ingest` la **complétera et basculera** `ingested: true` plutôt que d'en créer une nouvelle.
+- L'identité d'une source est `source_path`, pas le filename de la page wiki — toujours grep `source_path:` avant de créer une page source.
+- Tant que `ingested: false`, la page peut être minimale (frontmatter + 1 ligne) — pas de claim factuel à tracer.
+
 ## Callouts
 
 ```markdown

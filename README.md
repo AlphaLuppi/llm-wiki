@@ -79,10 +79,29 @@ git clone <url-du-repo> /chemin/vers/llm-wiki
 | `/wiki query <question>`         | Synthétise une réponse depuis le wiki, propose archivage                      |
 | `/wiki lint`                     | Détecte (read-only) orphelines, dead links, MOC/index désync, contradictions  |
 | `/wiki status`                   | Compteurs (pages, inbox, bases, dernière activité, par dossier)               |
+| `/wiki sources [--unread]`       | Inventaire d'ingestion : lues / stubs (`ingested: false`) / inbox sans page    |
 | `/wiki update <page>`            | Relit toutes les sources liées et réécrit la page                             |
 | `/wiki refresh-index`            | Régénère `index.md` + tous les MOC depuis le contenu réel                     |
 | `/wiki install-bases`            | Installe / régénère les Bases avec adaptation au profil du vault              |
 | `/wiki brief`                    | Briefing compact (≤30 lignes) pour cold-start agent                           |
+
+## Tracking d'ingestion des sources
+
+Chaque page `wiki/sources/<nom>.md` porte trois champs de frontmatter qui en suivent le cycle de vie :
+
+```yaml
+source_path: inbox/2026-04-15-attention.pdf
+ingested: true            # ou false pour un stub planifié
+ingested_date: 2026-04-30 # vide tant que ingested: false
+```
+
+`source_path` est la **clé d'identité anti-doublon** (et non le filename de la page wiki). Avant d'ingérer un document, le sous-agent grep `source_path:` dans `wiki/sources/` :
+
+- aucune correspondance → création d'une nouvelle page source `ingested: true`,
+- correspondance avec `ingested: false` → la page stub est **complétée** (corps rempli, frontmatter basculé `true` + `ingested_date`),
+- correspondance avec `ingested: true` → on propose un update plutôt qu'une ré-ingestion.
+
+L'utilisateur peut donc pré-créer un stub `ingested: false` pour planifier une lecture sans encore distiller le contenu. `/wiki sources` (et la base `by-type` mise à jour) listent à tout moment les stubs en attente et les fichiers d'`inbox/` jamais ingérés.
 
 ## Hook SessionStart
 
