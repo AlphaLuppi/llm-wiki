@@ -13,16 +13,38 @@ properties:
     displayName: "Type"
   tags:
     displayName: "Tags"
+  ingested:
+    displayName: "Lu"
+  ingested_date:
+    displayName: "Lu le"
+  source_path:
+    displayName: "Source"
   file.mtime:
     displayName: "Modifié"
 views:
   - type: table
-    name: "Sources"
+    name: "Sources lues"
     filters:
       and:
         - 'type == "source"'
+        - 'ingested == true'
     order:
       - title
+      - ingested_date
+      - source_path
+      - tags
+    sort:
+      - property: ingested_date
+        direction: desc
+  - type: table
+    name: "Sources à lire (stubs)"
+    filters:
+      and:
+        - 'type == "source"'
+        - 'ingested != true'
+    order:
+      - title
+      - source_path
       - tags
       - file.mtime
     sort:

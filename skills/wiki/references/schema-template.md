@@ -20,7 +20,7 @@ Ce qui suit est le contenu littéral à écrire dans `<vault>/_wiki_schema.md` a
 
 ## Page Types
 
-- **source** (`wiki/sources/`) : note de lecture sur un document externe (paper, article, vidéo, livre). Une page = une source. Cite les claims clés avec citation directe quand utile.
+- **source** (`wiki/sources/`) : note de lecture sur un document externe (paper, article, vidéo, livre). Une page = une source. Cite les claims clés avec citation directe quand utile. Porte le tracking d'ingestion : frontmatter `source_path`, `ingested` (boolean), `ingested_date`.
 - **entity** (`wiki/entities/`) : personne, organisation, projet, lieu — toute chose nommée et identifiable.
 - **concept** (`wiki/concepts/`) : idée, théorie, méthode, technique. La page synthétise ce que disent toutes les sources.
 - **comparison** (`wiki/comparisons/`) : tableau comparatif de plusieurs entities/concepts.
@@ -47,6 +47,8 @@ Ce qui suit est le contenu littéral à écrire dans `<vault>/_wiki_schema.md` a
 ## Workflow d'ingestion
 
 1. Source brute → `inbox/YYYY-MM-DD-<nom>.md` (immuable).
-2. Analyse → distillation → `wiki/sources/<nom>.md` + updates dans `wiki/concepts|entities/...`.
-3. `index.md` mis à jour, MOC du dossier mis à jour, entrée loguée dans `log.md`.
+2. (Optionnel) Pré-création d'un stub `wiki/sources/<nom>.md` avec `ingested: false` pour planifier la lecture.
+3. Analyse → distillation → `wiki/sources/<nom>.md` (frontmatter `source_path`, `ingested: true`, `ingested_date: YYYY-MM-DD`) + updates dans `wiki/concepts|entities/...`. Si un stub existait, on **complète** plutôt que de créer un doublon.
+4. `index.md` mis à jour, MOC du dossier mis à jour, entrée loguée dans `log.md`.
+5. `/wiki sources` permet de retrouver à tout moment les stubs `ingested: false` et les fichiers d'inbox jamais ingérés.
 ```

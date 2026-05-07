@@ -40,14 +40,19 @@ Sans ces 3 contextes, **ne pas commencer** l'analyse.
 
 1. **Lire la source intégralement** (`Read`).
 2. **Charger le contexte wiki** ci-dessus si pas déjà fait.
-3. **Anti-doublon** : pour chaque entité/concept candidat à devenir une page :
+3. **Anti-doublon source** : avant tout, vérifier si la source elle-même a déjà une page :
+   - `grep -rn "source_path:" "<vault>/wiki/sources"` et chercher une correspondance avec le chemin courant,
+   - si trouvée et `ingested: true` → marquer `source_status: already_ingested` (proposer un update plutôt qu'une ré-ingestion),
+   - si trouvée et `ingested: false` → marquer `source_status: complete_stub` (la page existe en stub, on la complète et bascule `ingested: true`),
+   - sinon → marquer `source_status: new`.
+4. **Anti-doublon concepts** : pour chaque entité/concept candidat à devenir une page :
    - `grep` le nom proposé dans `index.md`,
    - `grep` ses synonymes plausibles (au moins 2-3 variantes),
    - marquer la décision : `new` (rien trouvé) ou `merge_into:<page-existante>` (synonyme détecté).
-4. **Lire les pages à modifier** (celles marquées `merge_into`, plus toutes celles qui pourraient être enrichies par la source).
-5. **Détecter les contradictions** : claim de la source vs claim d'une page existante.
-6. **Composer le contenu** : pour chaque page à créer ou modifier, **rédiger le contenu prêt-à-écrire**. Pas de TBD, pas de placeholder.
-7. **Retourner le plan** au format ci-dessous.
+5. **Lire les pages à modifier** (celles marquées `merge_into`, plus toutes celles qui pourraient être enrichies par la source).
+6. **Détecter les contradictions** : claim de la source vs claim d'une page existante.
+7. **Composer le contenu** : pour chaque page à créer ou modifier, **rédiger le contenu prêt-à-écrire**. Pas de TBD, pas de placeholder.
+8. **Retourner le plan** au format ci-dessous.
 
 ## Format du plan retourné
 
@@ -59,6 +64,8 @@ Le plan doit être **auto-suffisant** : le main thread n'aura plus accès à la 
 ## Métadonnées
 - source_path: <path>
 - source_kind: <paper|article|video|book|note|other>
+- source_status: new | complete_stub | already_ingested
+- existing_source_page: <path-de-la-page-stub-si-complete_stub>
 - date_analysed: <YYYY-MM-DD>
 - source_tags: [<tag>, <tag>]
 
@@ -100,6 +107,21 @@ description: <résumé une-ligne pour index>
 ```
 ```
 
+**Cas particulier des pages `type: source`** (créées dans `wiki/sources/`) : ajouter au frontmatter les trois champs de tracking obligatoires :
+
+```yaml
+---
+title: <titre>
+type: source
+tags: [type/source, ...]
+date: <YYYY-MM-DD>
+description: <résumé une-ligne>
+source_path: <chemin de la source brute>
+ingested: true
+ingested_date: <YYYY-MM-DD>
+---
+```
+
 (Répéter pour chaque page à créer.)
 
 ## Pages à mettre à jour
@@ -125,6 +147,21 @@ ou si ajout pur :
 ```
 
 (Répéter par section impactée. Toujours préciser le heading cible et le diff exact, **jamais** « update la section X ».)
+
+**Cas `source_status: complete_stub`** : la page source existe déjà avec `ingested: false`. Le plan doit :
+
+1. Basculer le frontmatter :
+   ```diff
+   - ingested: false
+   + ingested: true
+   ```
+   et ajouter (ou remplacer si vide) :
+   ```diff
+   + ingested_date: <YYYY-MM-DD>
+   ```
+2. Remplir le corps avec le contenu de lecture (sections normales d'une page source).
+
+Ne **pas** créer de nouvelle page source dans ce cas — réutiliser le stub existant.
 
 ## Changements d'index
 
@@ -167,3 +204,4 @@ ou si ajout pur :
 - **Contradictions explicites** : ne pas les minimiser. Si la source contredit le wiki, le plan le dit avec extrait + page concernée + résolution proposée.
 - **Wikilinks vers pages futures** : si une page B sera créée dans le même plan, la page A peut déjà la référencer en `[[B]]`. Le main thread écrira dans l'ordre A puis B (ou inverse) — Obsidian résoudra.
 - **Aligner avec la langue du vault** : si le wiki est en français, le contenu généré est en français.
+- **Tracking source obligatoire** : toute page `type: source` créée doit porter `source_path`, `ingested: true`, `ingested_date` dans son frontmatter. Toute page source mise à jour depuis un stub doit faire basculer `ingested: false` → `true` et renseigner `ingested_date`.

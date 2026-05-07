@@ -1,7 +1,7 @@
 ---
 name: wiki
 description: "Gère une base de connaissance Obsidian-compatible avec le pattern LLM Wiki (ingestion de sources, requêtes, lint, maintenance d'index). Usage : /wiki <commande> [args]"
-argument-hint: "brief | init | ingest <path> | query <q> | lint | status | update <page> | refresh-index | install-bases"
+argument-hint: "brief | init | ingest <path> | query <q> | lint | status | update <page> | refresh-index | install-bases | sources [--unread]"
 ---
 
 # Skill `wiki`
@@ -54,6 +54,7 @@ Tous dans `${CLAUDE_PLUGIN_ROOT}/skills/wiki/scripts/`, acceptent `<vault>` comm
 | `lint-dead-links.sh`    | Wikilinks pointant vers pages inexistantes            |
 | `lint-moc-desync.sh`    | MOC manquants / superflus / désync                    |
 | `lint-index-desync.sh`  | Désync entre `index.md` et le contenu réel            |
+| `list-unread-sources.sh`| Inventaire d'ingestion (lus, stubs `ingested: false`, fichiers d'inbox sans page) |
 
 Toujours préférer ces scripts à des find/grep ad hoc.
 
@@ -140,6 +141,20 @@ Toujours préférer ces scripts à des find/grep ad hoc.
 
 Justification : le contenu intégral des sources peut être volumineux et stale rapidement. Le main thread reste léger en déléguant l'analyse à des sous-agents read-only qui retournent un **plan d'écriture structuré**. Le main thread valide avec l'utilisateur puis écrit.
 
+### Tracking d'ingestion (source pages)
+
+Toute page créée dans `wiki/sources/` porte trois champs de cycle de vie dans son frontmatter (cf. `references/obsidian-conventions.md`) :
+
+| Champ           | Valeurs                                  | Sens                                      |
+|-----------------|------------------------------------------|-------------------------------------------|
+| `source_path`   | chemin relatif/absolu                    | Identité de la source brute               |
+| `ingested`      | `true` (lu, distillé) ou `false` (stub)  | État de lecture                           |
+| `ingested_date` | `YYYY-MM-DD`                             | Date de l'ingestion (vide tant que false) |
+
+`source_path` est la **clé d'identité** : avant toute création de page source, grep `source_path:` dans `wiki/sources/` pour décider new / update-stub / déjà-ingéré (cf. `source_status` retourné par le sous-agent).
+
+L'utilisateur peut pré-créer un stub (`ingested: false`) pour planifier une lecture ; `/wiki ingest` complétera ce stub plutôt que de créer un doublon.
+
 ### Spawn des sous-agents
 
 | Nb de sources | Stratégie                                 |
@@ -164,23 +179,41 @@ Spawn dans **un seul message** avec N appels `Agent` parallèles (`subagent_type
    - détecter les conflits inter-plans (ex : 2 plans veulent créer la même page),
    - dédupliquer les ajouts d'index,
    - consolider les changements de MOC,
-   - aggréger les contradictions détectées.
+   - aggréger les contradictions détectées,
+   - prendre en compte le `source_status` de chaque plan (skip silencieux si `already_ingested` sauf override utilisateur).
 6. **Présenter un récapitulatif** à l'utilisateur :
-   - X sources analysées
+   - X sources analysées (dont S nouvelles, T stubs complétés, U déjà ingérées)
    - Y pages à créer (lister)
    - Z pages à mettre à jour (lister avec sections impactées)
    - doublons sémantiques détectés
    - contradictions entre sources
    - **3-5 key insights** non triviaux
 7. **Attendre validation** (par défaut : tout valider, ou page par page si l'utilisateur le demande).
-8. **Écrire séquentiellement** après validation. **Charger** `references/obsidian-conventions.md` avant la première écriture.
+8. **Écrire séquentiellement** après validation. **Charger** `references/obsidian-conventions.md` avant la première écriture. Pour chaque page source : renseigner `source_path`, `ingested: true`, `ingested_date`. Pour un stub complété : flipper `ingested: false → true` et ajouter `ingested_date`.
 9. Mettre à jour `index.md` (charger `references/format-index.md`).
 10. Mettre à jour les MOC impactés (charger `references/format-moc.md` ; créer un MOC si un dossier passe à ≥3 pages).
-11. Loguer **une seule entrée** dans `log.md` pour le batch : `- YYYY-MM-DD HH:MM — ingest : N sources, X créations, Y updates.`
+11. Loguer **une seule entrée** dans `log.md` pour le batch : `- YYYY-MM-DD HH:MM — ingest : N sources (S new, T stubs complétés), X créations, Y updates.`
 
 ### Override : ingest sans subagent
 
 Si l'utilisateur demande explicitement (« ingest sans subagent », « inline ingest »), exécuter la procédure complète d'analyse + écriture dans le main thread, en suivant les mêmes étapes que `wiki-ingest` (voir `agents/wiki-ingest.md`).
+
+---
+
+## Commande : `/wiki sources [--unread]`
+
+**But.** Inventaire d'ingestion : qui a été lu, quels stubs traînent, quels fichiers de l'inbox n'ont pas encore de page.
+
+**Étapes.**
+
+1. Exécuter `list-unread-sources.sh "$VAULT"` (sans `--json` pour affichage humain).
+2. La sortie liste trois sections :
+   - **Lues** : pages `wiki/sources/*.md` avec `ingested: true`,
+   - **Stubs (à lire)** : pages `wiki/sources/*.md` avec `ingested: false`,
+   - **Fichiers d'inbox sans page** : `inbox/*.md|*.pdf|*.txt` qui ne sont référencés par aucun `source_path:` du vault.
+3. Avec `--unread` : ne montrer que les sections « Stubs » et « Fichiers d'inbox sans page ».
+4. **Pas de log** (read-only).
+5. Si l'utilisateur veut traiter ces sources : proposer `/wiki ingest <path>` page par page.
 
 ---
 
