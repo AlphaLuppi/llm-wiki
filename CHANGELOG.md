@@ -5,6 +5,7 @@
 - Le sous-agent `wiki-ingest` détecte par `source_path` les ingestions déjà faites (`already_ingested`) et les stubs à compléter (`complete_stub`) — plus de doublons silencieux quand le même document est ré-ingéré.
 - Nouvelle commande `/wiki sources [--unread]` et script `list-unread-sources.sh` : inventaire des sources lues, stubs `ingested: false`, et fichiers d'`inbox/` sans page source.
 - Base `by-type` étendue avec deux vues `Sources lues` / `Sources à lire` filtrées sur `ingested`.
+- Mandat « français exclusivement » pour tout contenu écrit par le plugin (pages, MOC, index, schéma, log). Les sources en autre langue sont traduites / distillées en français avant ingestion. Règle ajoutée dans `SKILL.md`, `agents/wiki-ingest.md`, `obsidian-conventions.md`, `schema-template.md` et `README.md`.
 
 ## [1.0.0]
 - Initial release

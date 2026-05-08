@@ -2,6 +2,12 @@
 
 > **Quand lire ce fichier ?** Avant toute création ou modification d'une page du wiki.
 
+## Langue
+
+Tout le contenu rédigé est en **français exclusivement** : titres de page, headings, prose, bullets, descriptions frontmatter, entrées d'index, MOC, log. Une source en anglais (ou autre langue) est traduite / distillée en français avant ingestion. Citation entre guillemets dans la langue d'origine autorisée uniquement pour appuyer une contradiction ou une définition technique précise.
+
+Les **filenames** restent en kebab-case ASCII (cf. section ci-dessous) — c'est une contrainte technique d'Obsidian, pas une langue.
+
 ## Wikilinks
 
 Toujours utiliser la syntaxe `[[...]]`, **jamais** `[texte](chemin.md)` (sinon pas de graph view, pas de backlinks).

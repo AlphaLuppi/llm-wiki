@@ -8,6 +8,19 @@ argument-hint: "brief | init | ingest <path> | query <q> | lint | status | updat
 
 Maintient un **wiki Obsidian-compatible** suivant le pattern « LLM Wiki » (Karpathy) : la connaissance est compilée une fois dans des pages markdown persistantes que le LLM enrichit cumulativement, plutôt que re-générée à chaque requête.
 
+## Langue : français exclusivement
+
+**Toutes les pages du wiki sont rédigées en français**, sans exception. Cela vaut pour :
+
+- Le contenu des pages (titres, headings, prose, bullets, descriptions frontmatter).
+- Les `index.md`, `overview.md`, `log.md`, MOC, schémas.
+- Les noms de tags personnalisés (`type/concept`, `topic/...`, etc.).
+- Les commentaires dans les `.base`.
+
+Si une source est en anglais (ou autre langue), **le contenu ingéré est traduit/distillé en français** avant écriture. Citer la source dans sa langue originale est autorisé uniquement entre guillemets pour appuyer une contradiction ou une définition technique précise.
+
+Les `filenames` restent en **kebab-case ASCII** (cf. `obsidian-conventions.md`) — c'est une contrainte technique d'Obsidian, pas une langue.
+
 ## Architecture du vault cible
 
 ```
@@ -410,7 +423,7 @@ Pour aller plus loin :
 ## Avant toute opération d'écriture
 
 - Lire `_wiki_schema.md` ET `wiki/index.md`.
-- Vérifier la convention de langue de l'utilisateur (s'aligner sur l'existant — si le vault est en français, écrire en français ; si en anglais, écrire en anglais).
+- **Le contenu est rédigé en français uniquement** (cf. section « Langue » en tête de ce skill). Si la source est dans une autre langue, traduire / distiller en français avant d'écrire.
 
 ## Anti-doublon (avant création de page)
 

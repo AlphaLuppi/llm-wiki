@@ -28,6 +28,7 @@ Ce qui suit est le contenu littéral à écrire dans `<vault>/_wiki_schema.md` a
 
 ## Conventions
 
+- **Langue : français exclusivement.** Tout le contenu (titres, headings, prose, bullets, frontmatter, MOC, index) est rédigé en français. Si une source est en anglais ou autre langue, elle est traduite / distillée en français avant ingestion. Citation entre guillemets dans la langue d'origine autorisée uniquement pour appuyer une définition technique précise ou une contradiction.
 - **Une page par entité/concept**, pas de doublons. Avant création, grep `wiki/index.md` sur le nom proposé ET ses synonymes.
 - Toute affirmation factuelle **trace vers une source** via `[[wikilink]]`.
 - Les **contradictions** entre sources sont signalées explicitement avec `> [!warning]` et résolues dans la page (qui dit quoi, qui semble plus fiable).

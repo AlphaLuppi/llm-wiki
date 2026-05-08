@@ -2,6 +2,8 @@
 
 Plugin Claude Code qui crée et entretient un **wiki Obsidian-compatible** piloté par LLM. Ingestion de sources, requêtes, lint, maintenance automatique de l'index et des Maps of Content (MOC), capture continue.
 
+> **Langue : français exclusivement.** Tout le contenu rédigé par le plugin (pages, MOC, index, schéma, log) l'est en français, quelle que soit la langue des sources ingérées. Voir la section « Langue » du `SKILL.md` pour les règles précises.
+
 ## Principe fondateur
 
 Ce plugin implémente le pattern **« LLM Wiki »** décrit par Andrej Karpathy : <https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f>
